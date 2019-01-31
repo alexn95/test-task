@@ -1,0 +1,64 @@
+{% extends "clientbase/base.html" %}
+{% load url_replace %}
+{% block title %} Clients list {% endblock %}
+{% block content %}
+    <div class="container">
+        <form class="search-panel" action="/" method="get">
+            {% csrf_token %}
+            <input id="query_string" type="text" name="query_string" value="{{ query_string }}">
+            <button class="search-button" type="submit">Search</button>
+            <a href="create">Create client </a>
+        </form>
+        <table>
+            <tr class="client-line">
+                <td class="client-photo_td"> Photo</td>
+                <td><a href="?{% url_replace request 'order_by' 'first_name' %}">First Name	&#9650;</a></td>
+                <td><a href="?{% url_replace request 'order_by' 'last_name' %}">Last Name &#9650;</a></td>
+                <td><a href="?{% url_replace request 'order_by' '-date_of_birth' %}">Age &#9650;</a></td>
+                <td><a href="?{% url_replace request 'order_by' 'date_of_birth' %}">Date of birth &#9650;</a></td>
+                <td class="delete_td"></td>
+            </tr>
+            {% for client in clients %}
+                <tr class="client-line">
+                    <td class="client-photo_td">
+                        <a href="{{ client.id }}">
+                            <img src="{{ client.photo }}" class="client-photo_small">
+                        </a>
+                    </td>
+                    <td><a href="{{ client.id }}">{{ client.first_name }}</a></td>
+                    <td><a href="{{ client.id }}">{{ client.last_name }}</a></td>
+                    <td>{{ client.age }}</td>
+                    <td>{{ client.date }}</td>
+                    <td class="delete_td">
+                        <form id="deleteClientForm_{{client.id}}" action="/delete/{{client.id}}">
+                            <button type="button" onclick="deleteClient({{client.id}});">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <div class="pagination">
+            <span class="step-links">
+                {% if clients.has_previous %}
+                    <a href="?{% url_replace request 'page' 1 %}">&laquo; first</a>
+                    <a class="pagination_previous" 
+                        href="?{% url_replace request 'page' clients.previous_page_number %}">
+                        previous
+                    </a>
+                {% endif %}
+
+                <span class="pagination_current">
+                    page {{ clients.number }} of {{ clients.paginator.num_pages }}
+                </span>
+
+                {% if clients.has_next %}
+                    <a class="pagination_next"
+                        href="?{% url_replace request 'page' clients.next_page_number %}">
+                        next
+                    </a>
+                    <a href="?{% url_replace request 'page' clients.paginator.num_pages %}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+{% endblock %}

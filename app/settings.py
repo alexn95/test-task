@@ -25,7 +25,7 @@ SECRET_KEY = 'ok^vw51ba_==knjhj#wed8=i_a^cb+20$p6u4vl$8n^*=#(x&u'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -121,4 +121,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
 STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]
+
+DATE_INPUT_FORMATS = (
+    '%Y-%m-%d', '%d-%m-%Y',
+    '%Y/%m/%d', '%d/%m/%Y',
+    '%Y.%m.%d', '%d.%m.%Y',
+    '%Y %m %d', '%d %m %Y',
+)

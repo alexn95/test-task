@@ -1,0 +1,20 @@
+{% extends "clientbase/base.html" %}
+{% block title %} Create client {% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="create-client_header">Create new client</div>
+        <form method="POST" class="create-client-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form_line">
+                    {{ field.label_tag }} {{ field }}
+                </div>
+                <div>
+                    {{ field.errors }}
+                </div>
+            {% endfor %} 
+            <button type="submit"> Submit </button>
+            <a href="/">List of clients</a>
+        </form>
+    </div>
+{% endblock %}

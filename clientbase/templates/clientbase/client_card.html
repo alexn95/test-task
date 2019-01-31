@@ -1,0 +1,19 @@
+{% extends "clientbase/base.html" %}
+{% block title %} Client card {% endblock %}
+{% block content %}
+<div class="container">
+    <img src="{{ client.photo }}" class="client-photo">
+    <div class="column">
+        {{ client.first_name }} {{ client.last_name }}
+    </div>
+    <div class="column">
+        Date of birth: {{ client.date }}
+    </div>
+    <div class="column">
+        Age: {{ client.age }}
+    </div>
+    <div class="column">
+        <a href="/">List of clients</a>
+    </div>
+</div>
+{% endblock %}
