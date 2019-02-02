@@ -13,7 +13,7 @@
         Age: {{ client.age }}
     </div>
     <div class="column">
-        <a href="/">List of clients</a>
+        <a href="{% url 'client_list' %}">List of clients</a>
     </div>
 </div>
 {% endblock %}

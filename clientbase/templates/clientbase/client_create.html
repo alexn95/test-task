@@ -14,7 +14,7 @@
                 </div>
             {% endfor %} 
             <button type="submit"> Submit </button>
-            <a href="/">List of clients</a>
+            <a href="{% url 'client_list' %}">List of clients</a>
         </form>
     </div>
 {% endblock %}

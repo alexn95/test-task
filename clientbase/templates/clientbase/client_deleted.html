@@ -3,6 +3,6 @@
 {% block content %}
     <div class="delete-client_container">
         <div>Client was deleted</div>
-        <a href="/">List of clients</a>
+        <a href="{% url 'client_list' %}">List of clients</a>
     </div>
 {% endblock %}
