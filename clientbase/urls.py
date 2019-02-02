@@ -7,4 +7,5 @@ urlpatterns = [
     path('<int:client_id>', views.client_card, name='client_card'),
     path('create', views.client_create, name='client_create'),
     path('delete/<int:client_id>', views.client_delete, name='client_delete'),
+    path('download', views.data_to_xlsx, name='data_to_xlsx'),
 ]

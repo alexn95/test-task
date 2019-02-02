@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, randrange
 import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,8 +9,7 @@ from django.urls import reverse
 
 from app.settings import MEDIA_ROOT
 from clientbase.forms import ClientForm
-from clientbase.models import Client
-from clientbase.services import try_parsing_date
+from clientbase.models import Client, try_parsing_date
 
 
 class ClientTestCase(TestCase):
@@ -21,7 +20,7 @@ class ClientTestCase(TestCase):
             first_name='FirstName',
             last_name='LastName',
             date_of_birth='1995-02-24',
-            photo='1.png'
+            photo='test_photo.png'
         )
 
     def test_get_client_by_id(self):
@@ -58,8 +57,6 @@ class ClientTestCase(TestCase):
         self.assertEqual(client.get_client_data()['age'], client.get_client_age())
         self.assertEqual(client.get_client_data()['first_name'], client.first_name)
 
-
-class ServicesTestCase(TestCase):
     def test_try_parsing_date(self):
         # Check try_parsing_date to correctly parse various types of dates
         self.assertIsInstance(try_parsing_date('2000.01.20'), datetime.date)
@@ -76,6 +73,8 @@ class ServicesTestCase(TestCase):
         self.assertRaises(ValueError, try_parsing_date, '20012000')
         self.assertRaises(ValueError, try_parsing_date, 'abc')
 
+# class ServicesTestCase(TestCase):
+
 
 class ViewsTestCase(TestCase):
     def setUp(self):
@@ -88,7 +87,7 @@ class ViewsTestCase(TestCase):
             first_name='FirstNameOne',
             last_name='LastNameOne',
             date_of_birth='1995-02-24',
-            photo='1.png'
+            photo='test_photo.png'
         )
         self.client1 = Client.objects.get(id=self.client1_id)
 
@@ -99,7 +98,7 @@ class ViewsTestCase(TestCase):
             first_name='FirstNameTwo',
             last_name='LastNameTwo',
             date_of_birth='1995-02-24',
-            photo='1.png'
+            photo='test_photo.png'
         )
         self.client2 = Client.objects.get(id=self.client2_id)
 
@@ -157,11 +156,10 @@ class ViewsTestCase(TestCase):
 
 
 class FormsTestCase(TestCase):
-
     def test_client_form(self):
         # Create image object
-        url = MEDIA_ROOT + 'photos/1.png'
-        photo = SimpleUploadedFile(name='1.png', content=open(url, 'rb').read(), content_type='image/png')
+        url = MEDIA_ROOT + 'photos/test_photo.png'
+        photo = SimpleUploadedFile(name='test_photo.png', content=open(url, 'rb').read(), content_type='image/png')
 
         # Positive validation form
         form_data = {
@@ -182,3 +180,21 @@ class FormsTestCase(TestCase):
         }
         form = ClientForm(form_data, {'photo': photo})
         self.assertFalse(form.is_valid())
+
+
+class CreateDataTestCase(TestCase):
+    def setUp(self):
+        self.first_name_list = ['Toby', 'Dusty', 'Lana', 'Rocky', 'Dexter', 'Cris', 'Scarlet', 'Danette']
+        self.last_name_list = ['Roger', 'Black', 'Maloof', 'Silk', 'Kush', 'Tootle', 'Odriscoll', 'White']
+
+    # Write 10 client in base
+    def test_create_clients(self):
+        for i in range(10):
+            first_name = self.first_name_list[randrange(len(self.first_name_list))]
+            last_name = self.first_name_list[randrange(len(self.last_name_list))]
+            Client.objects.create(
+                first_name=first_name,
+                last_name=last_name,
+                date_of_birth='199%s-01-01' % randint(1, 9),
+                photo='test_photo.png'
+            )

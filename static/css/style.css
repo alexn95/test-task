@@ -46,6 +46,9 @@ td {
 .delete_td {
     width: 70px;
 }
+.a_exel {
+    margin: 0 10px;
+}
 
 /* pagination styles */
 .pagination {

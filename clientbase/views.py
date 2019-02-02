@@ -1,16 +1,19 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.core.paginator import Paginator
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
+from django.http import Http404
 
-
+from clientbase.services import get_clients_in_xlsx
 from clientbase.forms import ClientForm
 from clientbase.models import Client
-from django.http import Http404
+
+from datetime import datetime
+from openpyxl.writer.excel import save_virtual_workbook
 
 
 # The client card view 
-# client chosen by id 
+# client chosen by id
 def client_card(request, client_id):
     try:
         client = Client.objects.get(id=client_id)
@@ -62,3 +65,11 @@ def client_delete(request, client_id):
     except ObjectDoesNotExist:
         raise Http404('Client with this id does not exist')
     return render(request, 'clientbase/client_deleted.html')
+
+
+# Download all clients data in xlxs file
+def data_to_xlsx(request):
+    book = get_clients_in_xlsx()
+    response = HttpResponse(save_virtual_workbook(book), content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="client_data_%s.xlsx"' % datetime.now().date()
+    return response
