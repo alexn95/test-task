@@ -5,6 +5,9 @@ from clientbase.models import Client
 
 
 class ClientForm(ModelForm):
+    """
+    Client form class
+    """
     date_of_birth = DateField(input_formats=settings.DATE_INPUT_FORMATS)
 
     class Meta:

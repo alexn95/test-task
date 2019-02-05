@@ -7,8 +7,9 @@
             {% csrf_token %}
             <input id="query_string" type="text" name="query_string" value="{{ query_string }}">
             <button class="search-button" type="submit">Search</button>
-            <a href="{% url 'client_create' %}">Create client</a>
-            <a href="{% url 'data_to_xlsx' %}" download="client_list.html" id="xlsx-download" class="a_exel">Download in xlsx</a>
+            <a href="{% url 'client_create' %}" class="a_client-list">Create client</a>
+            <a href="{% url 'data_to_xlsx' %}" class="a_client-list">Download in xlsx</a>
+            <a href="{% url 'client_photo' %}" class="a_client-list">Client photo</a>
         </form>
         <table>
             <tr class="client-line">
@@ -31,7 +32,9 @@
                     <td>{{ client.age }}</td>
                     <td>{{ client.date }}</td>
                     <td class="delete_td">
-                        <form id="deleteClientForm_{{client.id}}" action="/delete/{{client.id}}">
+                        <form id="deleteClientForm_{{client.id}}" method="post" action="{% url 'client_delete' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="client_id" value="{{client.id}}"/>
                             <button type="button" onclick="deleteClient({{client.id}});">Delete</button>
                         </form>
                     </td>

@@ -7,9 +7,12 @@ from openpyxl.utils import get_column_letter
 from clientbase.models import Client
 
 
-# Write all clients in xlsx document
 def get_clients_in_xlsx():
-    clients = Client.objects.get_all_clients_data()
+    """
+    Write all clients data in xlsx document
+    :return: xlsx workbook
+    """
+    clients = Client.objects.get_clients_data()
     wb = Workbook()
     ws = wb.active
     align = Alignment(horizontal='right')
@@ -50,10 +53,15 @@ def get_clients_in_xlsx():
     return wb
 
 
-# Resize image to base width with save proportions
 def resize_image_to_xlsx(img):
+    """
+    Resize image to base width with save proportions
+    :param img: original size image
+    """
     base_width = 252
     w_percent = (base_width / float(img.width))
     h_size = int((float(img.height) * float(w_percent)))
     img.width = base_width
     img.height = h_size
+
+

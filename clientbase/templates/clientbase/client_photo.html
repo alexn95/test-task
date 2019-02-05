@@ -1,0 +1,25 @@
+{% extends "clientbase/base.html" %}
+{% block title %} 
+    Client photo
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="likes_container">
+        {% for client in clients %}
+            <div class="likes_block">
+                <div class="likes_photo-container">
+                    <img src="{{ client.photo }}" class="likes_photo">
+                </div>
+                <div class="likes_row">
+                    <input class="like-counter" id="like-counter_{{client.id}}" value="{{ client.likes }}" readonly>
+                    <form class="like-form">
+                        {% csrf_token %}
+                        <button class="like_button" type="button" onclick="likePhoto({{client.id}});">like</button>
+                    </form>
+                    <div id="likes_error_{{client.id}}" class="likes_error" hidden="true">Maximum like counter</div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

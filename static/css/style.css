@@ -6,7 +6,8 @@
     border-radius: 10px;
     background-color: #fff;
     box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-    padding: 10px
+    padding: 10px;
+    margin: 30px;
 }
 .client-photo {
     margin: 20px;
@@ -46,11 +47,11 @@ td {
 .delete_td {
     width: 70px;
 }
-.a_exel {
+.a_client-list {
     margin: 0 10px;
 }
 
-/* pagination styles */
+/* Pagination styles */
 .pagination {
     margin: 10px;
 }
@@ -66,6 +67,7 @@ td {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin: 100px;
 }
 
 /* Create client form styles */
@@ -101,19 +103,65 @@ td {
     margin: 10px;
 }
 
-/* global styles */
-html, 
-body {
+/* Client likes page styles */
+.likes_container {
+    display: flex;
+    flex-direction: row;
+    margin: 10px;
+    flex-wrap: wrap;
+    justify-content: center
+}
+.likes_block {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 10px;
+}
+.likes_row {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin: 5px;
+    align-items: center;
+}
+.likes_photo {
+    max-height: 450px;
+    max-width: 350px;
+}
+.like-counter,
+.like-counter:hover,
+.like-counter:active,
+.like-counter:focus {
+    border: 0;
+    outline: 0;
+    width: 20px;
+    margin: 0 10px;
+}
+.likes_error {
+    color: red;
+}
+.likes_row_error {
+    margin: 0;
+}
+.like_button {
+    margin: 0 10px
+}
+
+
+/* Global styles */
+html {
     height: 100%;
     margin: 0;
 }
 body {
+    margin: 0;
     background: #E4EFF4;;
     color: #000;
     font-family: 'Arial', sans-serif;
-    display: flex;
     justify-content: center;
     align-items: center;
+    display: flex;
+    /* height: -webkit-fill-available; */
 }
 a {
     text-decoration: underline;
