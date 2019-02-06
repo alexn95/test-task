@@ -1,7 +1,7 @@
 # CLIENT BASE
-Base of clients. Stored first name, last name, date of birth, age, photo and likes in photo.
+Base of clients. In base stored first name, last name, date of birth, age, photo and likes to photo.
 
-User can create and delete clients, see list of all client or search clients by first name and last name, see the map of the desired client, see all client photo and like it.
+User can create and delete clients, can view list of all client or search clients by first name and last name, can view the map of the desired client, can view all photo and set the "like" to selected photo.
 
 Also application provide REST API to get photo list and setting likes.
 ## Prerequisites
@@ -31,13 +31,13 @@ To see all containers call
 $ docker ps
 ```
 
-To apply all app migrations call
+3. Apply app migrations 
 
 ```
 $ python manage.py migrate
 ```
 
-To create and apply clientbase migrations call
+4. Create and apply clientbase migrations
 
 ```
 $ python manage.py makemigrations clientbase
@@ -56,12 +56,25 @@ And run tests
 $ python manage.py test
 ``` 
 
+## User guide
+
+#### Visual web interfase
+
+http://0.0.0.0:8000/ - Main page. In page you can see list of the client, can delete client and move to any page of app. Also you can search the client by first name and last name, download all clients data in xlsx format file.
+
+http://0.0.0.0:8000/create - In this page you can create a new client.
+
+http://0.0.0.0:8000/photo - This page allow to see all clients photo and set the "like" to selected photo.
+
+#### REST API
+
+
 
 ## Built With
-[Docker](https://www.docker.com/)
+[Docker](https://www.docker.com/) - is a tool designed to make it easier to create, deploy, and run applications by using containers.
 
-[Python](https://www.python.org/)
+[Python](https://www.python.org/) - is an interpreted, object-oriented, high-level programming language with dynamic semantics. 
 
-[Django](https://www.djangoproject.com/)
+[Django](https://www.djangoproject.com/) - is a high-level Python Web framework.
 
-[Django rest framework](https://www.django-rest-framework.org/)
+[Django rest framework](https://www.django-rest-framework.org/) - is a powerful and flexible toolkit for building Web APIs in django python.
