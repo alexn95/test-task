@@ -58,7 +58,7 @@ $ python manage.py test
 
 ## User guide
 
-#### Visual web interfase
+### Visual web interfase
 
 http://0.0.0.0:8000/ - Main page. In page you can see list of the client, can delete client and move to any page of app. Also you can search the client by first name and last name, download all clients data in xlsx format file.
 
@@ -66,7 +66,64 @@ http://0.0.0.0:8000/create - In this page you can create a new client.
 
 http://0.0.0.0:8000/photo - This page allow to see all clients photo and set the "like" to selected photo.
 
-#### REST API
+### REST API
+
+#### GET /api/photo
+
+Return the list of clients photo data
+
+Example: http://localhost:8000/api/photo
+
+Response body:
+
+```
+[
+    {
+        "id": 1,
+        "photo": "http://localhost:8000/media/photo/test_photo.png",
+        "likes": 2
+    },
+    {
+        "id": 2,
+        "photo": "http://localhost:8000/media/photo/test_photo.png",
+        "likes": 10
+    }
+]
+```
+
+#### PATCH /api/like
+
+Set "like" to client photo by id
+
+Example: http://localhost:8000/api/like
+
+Request body:
+
+```
+{
+    "client_id": 1
+}
+```
+
+Available responses:
+
+```
+status: 200
+
+```
+
+```
+status: 400
+body: Invalid client id
+
+```
+
+```
+status: 400
+body: Client id not found
+
+```
+
 
 
 

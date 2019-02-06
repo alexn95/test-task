@@ -184,4 +184,4 @@ def set_like_transaction(client_id):
             instance.likes += 1
             instance.save()
 
-    return Response(data='Like was set', status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_200_OK)
