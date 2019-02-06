@@ -109,19 +109,16 @@ Available responses:
 
 ```
 status: 200
-
 ```
 
 ```
 status: 400
 body: Invalid client id
-
 ```
 
 ```
 status: 400
 body: Client id not found
-
 ```
 
 
