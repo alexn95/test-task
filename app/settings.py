@@ -150,3 +150,8 @@ DATE_INPUT_FORMATS = (
     '%Y.%m.%d', '%d.%m.%Y',
     '%Y %m %d', '%d %m %Y',
 )
+
+MAX_LIKES = 10
+CLIENT_PHOTO_DIR = 'photo'
+CLIENTS_PER_PAGE = 5
+ORDER_BY_LIST = ['first_name', 'last_name', 'date_of_birth', '-date_of_birth']

@@ -32,37 +32,39 @@
                     <td>{{ client.age }}</td>
                     <td>{{ client.date }}</td>
                     <td class="delete_td">
-                        <form id="deleteClientForm_{{client.id}}" method="post" action="{% url 'client_delete' %}">
+                        <form id="deleteClientForm_{{client.id}}" method="post" action="{% url 'client_delete' pk=client.id %}">
                             {% csrf_token %}
-                            <input type="hidden" name="client_id" value="{{client.id}}"/>
                             <button type="button" onclick="deleteClient({{client.id}});">Delete</button>
                         </form>
                     </td>
                 </tr>
             {% endfor %}
         </table>
+
+        {% if is_paginated %}
         <div class="pagination">
             <span class="step-links">
-                {% if clients.has_previous %}
+                {% if page_obj.has_previous %}
                     <a href="?{% url_replace request 'page' 1 %}">&laquo; first</a>
-                    <a class="pagination_previous" 
-                        href="?{% url_replace request 'page' clients.previous_page_number %}">
+                    <a class="pagination_previous"
+                        href="?{% url_replace request 'page' page_obj.previous_page_number %}">
                         previous
                     </a>
                 {% endif %}
 
                 <span class="pagination_current">
-                    page {{ clients.number }} of {{ clients.paginator.num_pages }}
+                    page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
                 </span>
 
-                {% if clients.has_next %}
+                {% if page_obj.has_next %}
                     <a class="pagination_next"
-                        href="?{% url_replace request 'page' clients.next_page_number %}">
+                        href="?{% url_replace request 'page' page_obj.next_page_number %}">
                         next
                     </a>
-                    <a href="?{% url_replace request 'page' clients.paginator.num_pages %}">last &raquo;</a>
+                    <a href="?{% url_replace request 'page' page_obj.paginator.num_pages %}">last &raquo;</a>
                 {% endif %}
             </span>
         </div>
+        {% endif %}
     </div>
 {% endblock %}

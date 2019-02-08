@@ -3,7 +3,7 @@ from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
 
-
+from app import settings
 from clientbase.models import Client
 
 
@@ -15,7 +15,8 @@ def get_clients_in_xlsx():
     clients = Client.objects.get_clients_data()
     wb = Workbook()
     ws = wb.active
-    align = Alignment(horizontal='right')
+    right_align = Alignment(horizontal='right')
+    left_align = Alignment(horizontal='left')
 
     # Write header column
     ws.column_dimensions['A'].width = 20
@@ -32,14 +33,15 @@ def get_clients_in_xlsx():
         ws.column_dimensions[get_column_letter(col)].width = 35
 
         # String client data
-        ws.cell(column=col, row=1, value=client['id']).alignment = align
-        ws.cell(column=col, row=2, value=client['first_name']).alignment = align
-        ws.cell(column=col, row=3, value=client['last_name']).alignment = align
-        ws.cell(column=col, row=4, value=client['date']).alignment = align
-        ws.cell(column=col, row=5, value=client['age']).alignment = align
+        date = try_parsing_date(client['date'])
+        ws.cell(column=col, row=1, value=client['id']).alignment = right_align
+        ws.cell(column=col, row=2, value=client['first_name']).alignment = right_align
+        ws.cell(column=col, row=3, value=client['last_name']).alignment = right_align
+        ws.cell(column=col, row=4, value=date).alignment = right_align
+        ws.cell(column=col, row=5, value=client['age']).alignment = right_align
 
         # Image line
-        ws.cell(column=col, row=6, value='You should see three logos below').alignment = align
+        ws.cell(column=col, row=6, value='You should see three logos below').alignment = left_align
         print(client['photo'].encode('utf-8'))
         img = Image('/code' + client['photo'])
         resize_image_to_xlsx(img)
@@ -49,7 +51,6 @@ def get_clients_in_xlsx():
 
     wb.save('client_data')
     wb.close()
-
     return wb
 
 
@@ -64,4 +65,30 @@ def resize_image_to_xlsx(img):
     img.width = base_width
     img.height = h_size
 
+
+def is_string_represent_an_int(string):
+    """
+    Check is string represent an int
+    :param string: string
+    :return: is string represent an int
+    """
+    try:
+        int(string)
+        return True
+    except ValueError:
+        return False
+
+
+def try_parsing_date(date):
+    """
+    Get string by date, check all possible formats
+    :param date: date
+    :return: date in string format
+    """
+    for fmt in settings.DATE_INPUT_FORMATS:
+        try:
+            return date.strftime(fmt)
+        except ValueError:
+            pass
+    raise ValueError('no valid date format found')
 

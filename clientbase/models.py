@@ -84,13 +84,13 @@ class Client(models.Model):
         Calculate and return the client age
         :return: the client age
         """
-        today = try_parsing_date(str(datetime.now().date()))
-        born = try_parsing_date(str(self.date_of_birth))
+        today = try_parsing_string_to_date(str(datetime.now().date()))
+        born = try_parsing_string_to_date(str(self.date_of_birth))
         age = today.year - born.year - ((today.month, today.day) < (born.month, born.day))
         return age
 
 
-def try_parsing_date(date):
+def try_parsing_string_to_date(date):
     """
     Parsing date from string, check all possible formats
     :param date: Date in string format

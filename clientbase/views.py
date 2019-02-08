@@ -1,19 +1,17 @@
-from django.contrib.auth import authenticate
-from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render
-from django.core.paginator import Paginator
-from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse, Http404
+from django.urls import reverse_lazy
 from django.db import transaction
+from django.db.models import F
+from django.views.generic import ListView, DetailView, DeleteView, FormView
 
 from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from clientbase.serializers import ClientPhotoSerializer
-from clientbase.services import get_clients_in_xlsx
+from app import settings
+from clientbase.serializers import ClientPhotoSerializer, AuthenticateSerializer
+from clientbase.services import get_clients_in_xlsx, is_string_represent_an_int
 from clientbase.forms import ClientForm
 from clientbase.models import Client
 
@@ -21,73 +19,83 @@ from datetime import datetime
 from openpyxl.writer.excel import save_virtual_workbook
 
 
-def client_card(request, client_id):
+class ClientCard(DetailView):
     """
-    The client card view
-    Client chosen by client_id
-    :param request: view request
-    :param client_id: id of the client
-    :return: client card template and client data
+    Client card view
     """
-    try:
-        client = Client.objects.get(id=client_id)
-    except ObjectDoesNotExist:
-        raise Http404('Client id not found')
-    return render(request, 'clientbase/client_card.html', {'client': client.get_client_data()})
+    context_object_name = 'client'
+    model = Client
+    template_name = 'clientbase/client_card.html'
+
+    def get_object(self, queryset=None):
+        """
+        Client data by queryset
+        :param queryset: client queryset
+        :return: client object
+        """
+        obj = super(ClientCard, self).get_object(queryset=queryset)
+        return obj.get_client_data()
 
 
-def clients_list(request):
+class ClientsList(ListView):
     """
     The client list view
-    :param request: view request
-    :return: client list template, data of all clients, and query string if exist
     """
-    order_by_list = ['first_name', 'last_name', 'date_of_birth', '-date_of_birth']
-    order_by = request.GET.get('order_by', 'first_name')
-    if not any(order_by == s for s in order_by_list):
-        raise Http404('Bad request params.')
-    query_string = request.GET.get('query_string', None)
+    context_object_name = 'clients'
+    template_name = 'clientbase/clients_list.html'
+    paginate_by = settings.CLIENTS_PER_PAGE
 
-    clients_data = Client.objects.get_clients_by_name(query_string, order_by)
-    list_of_client = list(map(lambda client: client.get_client_data(), clients_data))
+    def get_queryset(self):
+        """
+        List of clients by query string
+        :return: list of clients
+        """
+        self.query_string = self.request.GET.get('query_string', '')
+        self.order_by = self.request.GET.get('order_by', settings.ORDER_BY_LIST[0])
+        if not any(self.order_by == s for s in settings.ORDER_BY_LIST):
+            raise Http404('Bad request params.')
+        page = self.request.GET.get('page', None)
+        if page and not is_string_represent_an_int(page):
+            raise Http404('Page does not exist.')
+        clients_data = Client.objects.get_clients_by_name(self.query_string, self.order_by)
+        list_of_client = list(map(lambda client: client.get_client_data(), clients_data))
+        return list_of_client
 
-    clients_per_page = 5
-    paginator = Paginator(list_of_client, clients_per_page)
-    clients = paginator.get_page(request.GET.get('page'))
-    return render(request, 'clientbase/clients_list.html',
-                  {'clients': clients, 'query_string': query_string if query_string else ''})
+    def get_context_data(self, **kwargs):
+        """
+        Add query_string to context
+        :param kwargs: kwargs
+        :return: context
+        """
+        context = super(ClientsList, self).get_context_data(**kwargs)
+        context['query_string'] = self.query_string
+        return context
 
 
-def client_create(request):
+class ClientCreate(FormView):
     """
     Create a new client view
-    :param request: view request
-    :return: create client form template and form data
     """
-    if request.method == 'POST':
-        form = ClientForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/')
-    else:
-        form = ClientForm()
-    return render(request, 'clientbase/client_create.html', {'form': form})
+    template_name = 'clientbase/client_create.html'
+    form_class = ClientForm
+    success_url = reverse_lazy('client_list')
+
+    def form_valid(self, form):
+        """
+        Validation and save form data
+        :param form: create client form
+        :return: form validation result
+        """
+        form.save()
+        return super(ClientCreate, self).form_valid(form)
 
 
-def client_delete(request):
+class ClientDelete(DeleteView):
     """
     Delete client by id view
-    :param request: view request
-    :return: client delete template
     """
-    try:
-        client_id = request.POST['client_id']
-        Client.objects.get(id=client_id).delete()
-    except ObjectDoesNotExist:
-        raise Http404('Invalid client id')
-    except KeyError:
-        raise Http404('Client id not found')
-    return render(request, 'clientbase/client_deleted.html')
+    model = Client
+    success_url = reverse_lazy('client_deleted')
 
 
 def data_to_xlsx(request):
@@ -102,14 +110,21 @@ def data_to_xlsx(request):
     return response
 
 
-def client_photo(request):
+class ClientPhotoList(ListView):
     """
-    Client photo with likes template
-    :param request: view request
-    :return: client photo template and clients data
+    The client photo list view
     """
-    clients = Client.objects.get_clients_photo_data()
-    return render(request, 'clientbase/client_photo.html', {'clients': clients})
+    context_object_name = 'clients'
+    template_name = 'clientbase/client_photo.html'
+
+    def get_queryset(self):
+        """
+        List of all client photo
+        :return: list of client photo
+        """
+        clients_data = Client.objects.all()
+        list_of_client = list(map(lambda client: client.get_client_photo_data(), clients_data))
+        return list_of_client
 
 
 class ClientPhotoViewSet(generics.ListAPIView):
@@ -135,53 +150,27 @@ class LikeClientPhotoView(generics.UpdateAPIView):
         Get client by id and increment client likes counter if it possible
         """
         try:
-            client_id = request.data['client_id']
-            return set_like_transaction(client_id)
+            with transaction.atomic():
+                client_id = request.data['client_id']
+                result = Client.objects.select_for_update().filter(id=client_id, likes__lt=settings.MAX_LIKES)\
+                    .update(likes=F('likes') + 1)
+                return Response(status=status.HTTP_200_OK) if result else Response(status=status.HTTP_304_NOT_MODIFIED)
         except KeyError:
             return Response(data='Client id not found', status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
-@api_view(["POST"])
-@permission_classes((AllowAny,))
-def login(request):
+class LoginView(APIView):
     """
-    User login by username and password
-    :param request: view request
-    :return: user token
+    Login REST API view
     """
-    username = request.data.get("username")
-    password = request.data.get("password")
-    if username is None or password is None:
-        return Response({'error': 'Please provide both username and password'},
-                        status=status.HTTP_400_BAD_REQUEST)
-    user = authenticate(username=username, password=password)
-    if not user:
-        return Response({'error': 'Invalid Credentials'},
-                        status=status.HTTP_404_NOT_FOUND)
-    token, _ = Token.objects.get_or_create(user=user)
-    return Response({'token': token.key},
-                    status=status.HTTP_200_OK)
-
-
-@transaction.atomic
-def set_like_transaction(client_id):
-    """
-    Increment client likes counter if it possible
-    :param client_id: id of the client
-    :return: method result status
-    """
-    try:
-        instance = Client.objects.select_for_update().get(id=client_id)
-    except ObjectDoesNotExist:
-        return Response(data='Invalid client id', status=status.HTTP_400_BAD_REQUEST)
-    max_like_counter = 10
-
-    with transaction.atomic():
-        if instance.likes >= max_like_counter:
-            return Response(status=status.HTTP_304_NOT_MODIFIED)
-        else:
-            instance.likes += 1
-            instance.save()
-
-    return Response(status=status.HTTP_200_OK)
+    def post(self, request):
+        """
+        Check if user exist and return token key if user exist
+        :param request: post request
+        :return: token key
+        """
+        serializer = AuthenticateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key})

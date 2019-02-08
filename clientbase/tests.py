@@ -1,19 +1,21 @@
-from random import randint, randrange, random
+from random import randint, randrange
 import datetime
-import multiprocessing as mp
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.test import Client as TestClient
 from django.urls import reverse
-from rest_framework import status
+from django.contrib.auth.models import User
 
 from app.settings import MEDIA_ROOT
 from clientbase.forms import ClientForm
-from clientbase.models import Client, try_parsing_date
+from clientbase.models import Client, try_parsing_string_to_date
 
-from rest_framework.test import  APITestCase
+from rest_framework.test import APITestCase
+from rest_framework import status
+
+from clientbase.services import is_string_represent_an_int, try_parsing_date
 
 
 class ClientTestCase(TestCase):
@@ -26,14 +28,7 @@ class ClientTestCase(TestCase):
             date_of_birth='1995-02-24',
             photo='test_photo.png'
         )
-
-    def test_get_client_by_id(self):
-        """
-        Get created client by id and check his id and first_name
-        """
-        client = Client.objects.get(id=self.client_id)
-        self.assertEqual(client.id, self.client_id)
-        self.assertEqual(client.first_name, 'FirstName')
+        self.client = Client.objects.get(id=self.client_id)
 
     def test_get_clients_by_name(self):
         """
@@ -41,7 +36,6 @@ class ClientTestCase(TestCase):
         Get created client by parts of one of name, check if it is found and check her id
         Get created client by parts of both names, check if it is found and check her id
         """
-
         query_set = Client.objects.get_clients_by_name('FirstName LastName')
         self.assertTrue(len(query_set) > 0)
         self.assertEqual(list(query_set)[0].id, self.client_id)
@@ -59,14 +53,11 @@ class ClientTestCase(TestCase):
         Get client age
         Get created client data and check that data is correct
         """
-        client = Client.objects.get(id=self.client_id)
-
-        self.assertIsNotNone(client.get_client_age())
-
-        self.assertIsNotNone(client.get_client_data())
-        self.assertEqual(client.get_client_data()['id'], self.client_id)
-        self.assertEqual(client.get_client_data()['age'], client.get_client_age())
-        self.assertEqual(client.get_client_data()['first_name'], client.first_name)
+        self.assertIsNotNone(self.client.get_client_age())
+        self.assertIsNotNone(self.client.get_client_data())
+        self.assertEqual(self.client.get_client_data()['id'], self.client_id)
+        self.assertEqual(self.client.get_client_data()['age'], self.client.get_client_age())
+        self.assertEqual(self.client.get_client_data()['first_name'], self.client.first_name)
 
     def test_try_parsing_date(self):
         """
@@ -74,18 +65,18 @@ class ClientTestCase(TestCase):
         Check for try_parsing_date to receive an error when the date format is incorrect
         """
 
-        self.assertIsInstance(try_parsing_date('2000.01.20'), datetime.date)
-        self.assertIsInstance(try_parsing_date('20.01.2000'), datetime.date)
-        self.assertIsInstance(try_parsing_date('2000/01/20'), datetime.date)
-        self.assertIsInstance(try_parsing_date('20/01/2000'), datetime.date)
-        self.assertIsInstance(try_parsing_date('2000-01-20'), datetime.date)
-        self.assertIsInstance(try_parsing_date('20-01-2000'), datetime.date)
-        self.assertIsInstance(try_parsing_date('2000 01 20'), datetime.date)
-        self.assertIsInstance(try_parsing_date('20 01 2000'), datetime.date)
+        self.assertIsInstance(try_parsing_string_to_date('2000.01.20'), datetime.date)
+        self.assertIsInstance(try_parsing_string_to_date('20.01.2000'), datetime.date)
+        self.assertIsInstance(try_parsing_string_to_date('2000/01/20'), datetime.date)
+        self.assertIsInstance(try_parsing_string_to_date('20/01/2000'), datetime.date)
+        self.assertIsInstance(try_parsing_string_to_date('2000-01-20'), datetime.date)
+        self.assertIsInstance(try_parsing_string_to_date('20-01-2000'), datetime.date)
+        self.assertIsInstance(try_parsing_string_to_date('2000 01 20'), datetime.date)
+        self.assertIsInstance(try_parsing_string_to_date('20 01 2000'), datetime.date)
 
-        self.assertRaises(ValueError, try_parsing_date, '20-01-20')
-        self.assertRaises(ValueError, try_parsing_date, '20012000')
-        self.assertRaises(ValueError, try_parsing_date, 'abc')
+        self.assertRaises(ValueError, try_parsing_string_to_date, '20-01-20')
+        self.assertRaises(ValueError, try_parsing_string_to_date, '20012000')
+        self.assertRaises(ValueError, try_parsing_string_to_date, 'abc')
 
 
 class ViewsTestCase(TestCase):
@@ -152,11 +143,11 @@ class ViewsTestCase(TestCase):
         Check client card content
         Check client card by non-existent id
         """
-        response = self.test_client.get(reverse('client_card', kwargs={'client_id': self.client1_id}))
+        response = self.test_client.get(reverse('client_card', kwargs={'pk': self.client1_id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client1.get_client_data(), response.context['client'])
 
-        response = self.test_client.get(reverse('client_card', kwargs={'client_id': 0}))
+        response = self.test_client.get(reverse('client_card', kwargs={'pk': 0}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_client_create_view(self):
@@ -170,8 +161,8 @@ class ViewsTestCase(TestCase):
         """
         Check delete client view
         """
-        response = self.test_client.post(reverse('client_delete'), data={'client_id': self.client1_id})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.test_client.post(reverse('client_delete', kwargs={'pk': self.client1_id}))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertRaises(ObjectDoesNotExist, Client.objects.get, id=self.client1_id)
 
     def test_client_photo_view(self):
@@ -237,7 +228,7 @@ class CreateDataTestCase(TestCase):
             )
 
         for i in range(100):
-            response = self.test_client.get(reverse('client_card', kwargs={'client_id': i}))
+            response = self.test_client.get(reverse('client_card', kwargs={'pk': i}))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -269,8 +260,8 @@ class ApiTestCase(APITestCase):
 
     def test_client_photo_like_view(self):
         """
-        Check like of client photo view
-        Check that like is set and that like is not set after 10 likes
+        Check set "like" of client photo view
+        Check that "like" is set and that like is not set after 10 "likes"
         """
         data = {'client_id': self.client_entity.id}
         response = self.client.patch(reverse('api_like'), data, format='json')
@@ -291,3 +282,53 @@ class ApiTestCase(APITestCase):
 
         updated_client = Client.objects.get(id=self.client_id)
         self.assertEqual(updated_client.likes, 10)
+
+    def test_login_view(self):
+        """
+        Check login view
+        """
+        user = User.objects.create_user('john', 'lennon@thebeatles.com', 'johnpassword')
+        data = {
+            'login': user.username,
+            'password': 'johnpassword'
+        }
+        response = self.client.post(reverse('api_login'), data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue('token' in response.data)
+
+        data = {
+            'login': user.username,
+            'password': 'somepass'
+        }
+        response = self.client.post(reverse('api_login'), data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue('non_field_errors' in response.data)
+
+
+class ServicesTestCase(TestCase):
+
+    def test_is_string_represent_an_int(self):
+        """
+        Check is_string_represent_an_int
+        """
+        self.assertTrue(is_string_represent_an_int('1'))
+        self.assertFalse(is_string_represent_an_int('1asd'))
+
+    def test_try_parsing_date(self):
+        """
+        Check try_parsing_date
+        """
+        self.assertIsInstance(try_parsing_date(datetime.datetime.now()), str)
+
+    def test_try_parsing_string_to_date(self):
+        """
+        Check try_parsing_string_to_date with any available formats
+        """
+        date_list = (
+            '2000-01-21', '21-01-2000',
+            '2000/01/21', '21/01/2000',
+            '2000.01.21', '21.01.2000',
+            '2000 01 21', '21 01 2000',
+        )
+        for date in date_list:
+            self.assertIsInstance(try_parsing_string_to_date(date), datetime.datetime)
