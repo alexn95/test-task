@@ -1,8 +1,9 @@
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
+
 from rest_framework import serializers
 
-from clientbase.models import Client
+from .models import Client
 
 
 class ClientPhotoSerializer(serializers.ModelSerializer):

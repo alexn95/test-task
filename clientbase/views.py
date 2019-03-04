@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.http import HttpResponse, Http404
 from django.urls import reverse_lazy
 from django.db import transaction
@@ -8,15 +10,13 @@ from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from app import settings
-from clientbase.serializers import ClientPhotoSerializer, AuthenticateSerializer
-from clientbase.services import get_clients_in_xlsx, is_string_represent_an_int
-from clientbase.forms import ClientForm
-from clientbase.models import Client
-
-from datetime import datetime
 from openpyxl.writer.excel import save_virtual_workbook
+
+from .serializers import ClientPhotoSerializer, AuthenticateSerializer
+from .services import get_clients_in_xlsx, is_string_represent_an_int
+from .forms import ClientForm
+from .models import Client
+from app import settings
 
 
 class ClientCard(DetailView):

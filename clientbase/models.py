@@ -1,10 +1,10 @@
+from datetime import datetime
+
 from django.db import models
 from django.db.models import Q
 
+from .upload_photo import upload_photo
 from app import settings
-from clientbase.upload_photo import upload_photo
-
-from datetime import datetime
 
 
 class ClientManager(models.Manager):

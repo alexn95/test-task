@@ -3,8 +3,8 @@ from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
 
+from .models import Client
 from app import settings
-from clientbase.models import Client
 
 
 def get_clients_in_xlsx():

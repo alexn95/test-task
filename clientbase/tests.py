@@ -8,14 +8,13 @@ from django.test import Client as TestClient
 from django.urls import reverse
 from django.contrib.auth.models import User
 
-from app.settings import MEDIA_ROOT
-from clientbase.forms import ClientForm
-from clientbase.models import Client, try_parsing_string_to_date
-
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from clientbase.services import is_string_represent_an_int, try_parsing_date
+from .forms import ClientForm
+from .models import Client, try_parsing_string_to_date
+from .services import is_string_represent_an_int, try_parsing_date
+from app.settings import MEDIA_ROOT
 
 
 class ClientTestCase(TestCase):

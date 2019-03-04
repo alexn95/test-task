@@ -1,7 +1,7 @@
 from django.forms import ModelForm, DateField
 
+from .models import Client
 from app import settings
-from clientbase.models import Client
 
 
 class ClientForm(ModelForm):
