@@ -1,4 +1,5 @@
-from django.forms import ModelForm, DateField
+from django import forms
+from django.forms import ModelForm, DateField, Form
 
 from .models import Client
 from app import settings
@@ -13,3 +14,10 @@ class ClientForm(ModelForm):
     class Meta:
         model = Client
         fields = ('first_name', 'last_name', 'date_of_birth', 'photo')
+
+
+class ClientPhotoForm(Form):
+    """
+    Client photo set like form
+    """
+    client_id = forms.IntegerField()

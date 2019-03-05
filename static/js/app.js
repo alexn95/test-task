@@ -13,8 +13,8 @@ function likePhoto(id) {
     likes_error = $("#likes_error_" + id);
     $.ajax(
         {
-            type:"patch",
-            url: "api/like",
+            type:"post",
+            url: "like",
             data: {
                 'client_id': id,
                 csrfmiddlewaretoken: csrf_token
@@ -26,8 +26,12 @@ function likePhoto(id) {
                     var value = parseInt(likes_input.val());
                     likes_input.val(value + 1);
                 },
-                304: function() { 
-                    likes_error.show();
+                400: function(e) {
+                    console.log(e.responseText);
+                    if (e.responseText == 'Maximum like counter') {
+                        likes_error.show();
+                    }
+
                 }
             },
         });

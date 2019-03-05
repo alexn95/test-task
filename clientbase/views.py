@@ -1,18 +1,16 @@
 from datetime import datetime
 
 from django.http import HttpResponse, Http404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.db import transaction
 from django.db.models import F
-from django.views.generic import ListView, DetailView, DeleteView, FormView
+from django.views.generic import ListView, DetailView, DeleteView, FormView, \
+    UpdateView
 
-from rest_framework import generics, status
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from openpyxl.writer.excel import save_virtual_workbook
 
-from .serializers import ClientPhotoSerializer, AuthenticateSerializer
+from clientbase.forms import ClientPhotoForm
 from .services import get_clients_in_xlsx, is_string_represent_an_int
 from .forms import ClientForm
 from .models import Client
@@ -98,18 +96,6 @@ class ClientDelete(DeleteView):
     success_url = reverse_lazy('client_deleted')
 
 
-def data_to_xlsx(request):
-    """
-    Download all clients data in xlsx file view
-    :param request: view request
-    :return: xlsx document for download
-    """
-    book = get_clients_in_xlsx()
-    response = HttpResponse(save_virtual_workbook(book), content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="client_data_%s.xlsx"' % datetime.now().date()
-    return response
-
-
 class ClientPhotoList(ListView):
     """
     The client photo list view
@@ -123,54 +109,46 @@ class ClientPhotoList(ListView):
         :return: list of client photo
         """
         clients_data = Client.objects.all()
-        list_of_client = list(map(lambda client: client.get_client_photo_data(), clients_data))
+        list_of_client = list(map(
+            lambda client: client.get_client_photo_data(),
+            clients_data
+        ))
         return list_of_client
 
 
-class ClientPhotoViewSet(generics.ListAPIView):
+class LikeClientPhotoView(UpdateView):
     """
-    Client photo api view
-    Return all client photo with likes
+    The view witch set like client photo by id
     """
-    queryset = Client.objects.all()
-    serializer_class = ClientPhotoSerializer
-    http_method_names = ['get']
 
-
-class LikeClientPhotoView(generics.UpdateAPIView):
-    """
-    Api view witch set like client photo by id
-    """
-    queryset = Client.objects.all()
-    serializer_class = ClientPhotoSerializer
-    http_method_names = ['patch']
-
-    def patch(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         """
         Get client by id and increment client likes counter if it possible
         """
-        try:
+        form = ClientPhotoForm(request.POST)
+        if form.is_valid():
+            client_id = form.cleaned_data['client_id']
             with transaction.atomic():
-                client_id = request.data['client_id']
-                result = Client.objects.select_for_update().filter(id=client_id, likes__lt=settings.MAX_LIKES)\
-                    .update(likes=F('likes') + 1)
-                return Response(status=status.HTTP_200_OK) if result else Response(status=status.HTTP_304_NOT_MODIFIED)
-        except KeyError:
-            return Response(data='Client id not found', status=status.HTTP_400_BAD_REQUEST)
+                result = Client.objects.select_for_update().filter(
+                    id=client_id, likes__lt=settings.MAX_LIKES
+                ).update(likes=F('likes') + 1)
+                if result:
+                    return HttpResponse(status=200)
+                else:
+                    return HttpResponse('Maximum like counter', status=400)
+        else:
+            return HttpResponse(form.errors.as_json(), status=400)
 
 
-class LoginView(APIView):
+def data_to_xlsx(request):
     """
-    Login REST API view
+    Download all clients data in xlsx file view
+    :param request: view request
+    :return: xlsx document for download
     """
-    def post(self, request):
-        """
-        Check if user exist and return token key if user exist
-        :param request: post request
-        :return: token key
-        """
-        serializer = AuthenticateSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key})
+    book = get_clients_in_xlsx()
+    response = HttpResponse(save_virtual_workbook(book),
+                            content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = \
+        'attachment; filename="client_data_%s.xlsx"' % datetime.now().date()
+    return response
