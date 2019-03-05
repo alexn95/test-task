@@ -7,12 +7,10 @@ from django.test import TestCase
 from django.test import Client as TestClient
 from django.urls import reverse
 
-from rest_framework import status
-
 from .forms import ClientForm
 from .models import Client, try_parsing_string_to_date
 from .services import is_string_represent_an_int, try_parsing_date
-from app.settings import MEDIA_ROOT
+from app import settings
 
 
 class ClientTestCase(TestCase):
@@ -127,7 +125,7 @@ class ViewsTestCase(TestCase):
         """
         response = self.test_client.get(
             reverse('client_list'), {'query_string': ''})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(self.client1.get_client_data()
                         in response.context['clients'])
         self.assertTrue(self.client2.get_client_data()
@@ -135,7 +133,7 @@ class ViewsTestCase(TestCase):
 
         response = self.test_client.get(
             reverse('client_list'), {'query_string': 'FirstName LastName'})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(self.client1.get_client_data()
                         in response.context['clients'])
         self.assertTrue(self.client2.get_client_data()
@@ -143,7 +141,7 @@ class ViewsTestCase(TestCase):
 
         response = self.test_client.get(
             reverse('client_list'), {'query_string': 'Name'})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(self.client1.get_client_data()
                         in response.context['clients'])
         self.assertTrue(self.client2.get_client_data()
@@ -151,7 +149,7 @@ class ViewsTestCase(TestCase):
 
         response = self.test_client.get(
             reverse('client_list'), {'query_string': 'One'})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(self.client1.get_client_data()
                         in response.context['clients'])
         self.assertTrue(self.client2.get_client_data()
@@ -159,7 +157,7 @@ class ViewsTestCase(TestCase):
 
         response = self.test_client.get(
             reverse('client_list'), {'query_string': 'abc'})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(self.client1.get_client_data()
                         not in response.context['clients'])
         self.assertTrue(self.client2.get_client_data()
@@ -172,20 +170,20 @@ class ViewsTestCase(TestCase):
         """
         response = self.test_client.get(
             reverse('client_card', kwargs={'pk': self.client1_id}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(
             self.client1.get_client_data(), response.context['client'])
 
         response = self.test_client.get(
             reverse('client_card', kwargs={'pk': 0}))
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, 404)
 
     def test_client_create_view(self):
         """
         Check create client view
         """
         response = self.test_client.get(reverse('client_create'))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
 
     def test_client_delete_view(self):
         """
@@ -193,7 +191,7 @@ class ViewsTestCase(TestCase):
         """
         response = self.test_client.post(
             reverse('client_delete', kwargs={'pk': self.client1_id}))
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.status_code, 302)
         self.assertRaises(ObjectDoesNotExist,
                           Client.objects.get,
                           id=self.client1_id)
@@ -203,7 +201,7 @@ class ViewsTestCase(TestCase):
         Check client photo view
         """
         response = self.test_client.get(reverse('client_photo'))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(self.client1.get_client_photo_data()
                         in response.context['clients'])
 
@@ -215,7 +213,7 @@ class FormsTestCase(TestCase):
         Test create image object, positive validation form,
         negative validation form
         """
-        url = MEDIA_ROOT + 'photo/test_photo.png'
+        url = settings.MEDIA_ROOT + 'photo/test_photo.png'
         photo = SimpleUploadedFile(name='test_photo.png',
                                    content=open(url, 'rb').read(),
                                    content_type='image/png')
@@ -274,7 +272,7 @@ class CreateDataTestCase(TestCase):
             response = self.test_client.get(
                 reverse('client_card', kwargs={'pk': i})
             )
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.status_code, 200)
 
 
 class ServicesTestCase(TestCase):

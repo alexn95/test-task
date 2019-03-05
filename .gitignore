@@ -2,3 +2,5 @@
 __pycache__/
 migrations/
 media/photo/
+secret_key.py
+local.py
