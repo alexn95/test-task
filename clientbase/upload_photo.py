@@ -1,3 +1,7 @@
+"""
+Module contain custom mechanism of upload photo
+"""
+
 import os
 from uuid import uuid4
 

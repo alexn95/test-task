@@ -1,7 +1,11 @@
+"""
+Module contain django forms
+"""
+
 from django import forms
 from django.forms import ModelForm, DateField, Form
 
-from clientbase.enums import OrderBy
+from .enums import OrderBy
 from .models import Client
 from app import settings
 
@@ -19,7 +23,7 @@ class ClientForm(ModelForm):
 
 class ClientPhotoForm(Form):
     """
-    Client photo set like form
+    Form for set like to Client photo
     """
     client_id = forms.IntegerField()
 

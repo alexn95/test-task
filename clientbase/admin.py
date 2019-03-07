@@ -1,6 +1,3 @@
-from django.contrib import admin
-
-from .models import Client
-
-
-admin.site.register(Client)
+"""
+Module may contain django admin stuff
+"""

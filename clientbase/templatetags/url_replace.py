@@ -1,3 +1,7 @@
+"""
+Module contain template functions for replace url and keep the old
+"""
+
 from django import template
 
 

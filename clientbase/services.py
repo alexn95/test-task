@@ -1,3 +1,7 @@
+"""
+Module contain external services with used in app
+"""
+
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment
@@ -64,19 +68,6 @@ def resize_image_to_xlsx(img):
     h_size = int((float(img.height) * float(w_percent)))
     img.width = base_width
     img.height = h_size
-
-
-def is_string_represent_an_int(string):
-    """
-    Check is string represent an int
-    :param string: string
-    :return: is string represent an int
-    """
-    try:
-        int(string)
-        return True
-    except ValueError:
-        return False
 
 
 def try_parsing_date(date):

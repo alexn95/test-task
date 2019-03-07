@@ -1,3 +1,7 @@
+"""
+Module contain tests of application functionality
+"""
+
 from random import randint, randrange
 import datetime
 
@@ -9,11 +13,14 @@ from django.urls import reverse
 
 from .forms import ClientForm
 from .models import Client, try_parsing_string_to_date
-from .services import is_string_represent_an_int, try_parsing_date
+from .services import try_parsing_date
 from app import settings
 
 
 class ClientTestCase(TestCase):
+    """
+    Test cases of client model
+    """
     def setUp(self):
         self.client_id = randint(1, 100000)
         Client.objects.create(
@@ -90,6 +97,9 @@ class ClientTestCase(TestCase):
 
 
 class ViewsTestCase(TestCase):
+    """
+    Test cases of application views
+    """
     def setUp(self):
         """
         Create test clients
@@ -207,6 +217,9 @@ class ViewsTestCase(TestCase):
 
 
 class FormsTestCase(TestCase):
+    """
+    Test cases of application forms
+    """
     def test_client_form(self):
         """
         Test create client form
@@ -238,6 +251,9 @@ class FormsTestCase(TestCase):
 
 
 class CreateDataTestCase(TestCase):
+    """
+    Test cases of multiple creation data
+    """
     def setUp(self):
         """
         Create client name list
@@ -276,14 +292,9 @@ class CreateDataTestCase(TestCase):
 
 
 class ServicesTestCase(TestCase):
-
-    def test_is_string_represent_an_int(self):
-        """
-        Check is_string_represent_an_int
-        """
-        self.assertTrue(is_string_represent_an_int('1'))
-        self.assertFalse(is_string_represent_an_int('1asd'))
-
+    """
+    Test cases of application services
+    """
     def test_try_parsing_date(self):
         """
         Check try_parsing_date

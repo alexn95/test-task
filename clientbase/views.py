@@ -1,15 +1,19 @@
+"""
+Module contain application views realisation
+"""
+
 from datetime import datetime
 
 from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.db import transaction
 from django.db.models import F
-from django.views.generic import ListView, DetailView, DeleteView, FormView, \
-    UpdateView, CreateView
+from django.views.generic import ListView, DetailView, DeleteView, FormView
+from django.views.generic import UpdateView, CreateView
 
 from openpyxl.writer.excel import save_virtual_workbook
 
-from clientbase.enums import OrderBy
+from .enums import OrderBy
 from .forms import ClientPhotoForm, ClientListForm
 from .services import get_clients_in_xlsx
 from .forms import ClientForm

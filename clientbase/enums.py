@@ -1,3 +1,7 @@
+"""
+Module contain enumerators
+"""
+
 from enum import Enum
 
 
@@ -12,4 +16,9 @@ class OrderBy(Enum):
 
     @classmethod
     def get_value(cls, member):
+        """
+        Return enum value by it member
+        :param member: short name enum
+        :return: full name enum
+        """
         return cls[member].value[1]

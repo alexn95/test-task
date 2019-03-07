@@ -1,3 +1,7 @@
+"""
+Module contain django models, managers and functions with used in this models
+"""
+
 from datetime import datetime
 
 from django.db import models
@@ -9,7 +13,10 @@ from app import settings
 
 
 class ClientManager(models.Manager):
-    def get_clients_by_name(self, query_string, order_by):
+    """
+    Manager for client model
+    """
+    def get_clients_by_name(self, query_string, order_by=OrderBy.fn.value[0]):
         """
         Search clients by query_string
         :param query_string: the string which contains first name
