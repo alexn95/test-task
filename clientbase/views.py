@@ -1,17 +1,17 @@
 from datetime import datetime
 
-from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.db import transaction
 from django.db.models import F
 from django.views.generic import ListView, DetailView, DeleteView, FormView, \
-    UpdateView
+    UpdateView, CreateView
 
 from openpyxl.writer.excel import save_virtual_workbook
 
-from clientbase.forms import ClientPhotoForm
-from .services import get_clients_in_xlsx, is_string_represent_an_int
+from clientbase.enums import OrderBy
+from .forms import ClientPhotoForm, ClientListForm
+from .services import get_clients_in_xlsx
 from .forms import ClientForm
 from .models import Client
 from app import settings
@@ -37,7 +37,7 @@ class ClientCard(DetailView):
 
 class ClientsList(ListView):
     """
-    The client list view
+    Client list view
     """
     context_object_name = 'clients'
     template_name = 'clientbase/clients_list.html'
@@ -48,16 +48,15 @@ class ClientsList(ListView):
         List of clients by query string
         :return: list of clients
         """
-        self.query_string = self.request.GET.get('query_string', '')
-        self.order_by = self.request.GET.get('order_by', settings.ORDER_BY_LIST[0])
-        if not any(self.order_by == s for s in settings.ORDER_BY_LIST):
-            raise Http404('Bad request params.')
-        page = self.request.GET.get('page', None)
-        if page and not is_string_represent_an_int(page):
-            raise Http404('Page does not exist.')
-        clients_data = Client.objects.get_clients_by_name(self.query_string, self.order_by)
-        list_of_client = list(map(lambda client: client.get_client_data(), clients_data))
-        return list_of_client
+        self.form = ClientListForm(self.request.GET)
+        if not self.form.is_valid():
+            return HttpResponse(self.form.errors, status=400)
+        clients_data = Client.objects.get_clients_by_name(
+            self.form.cleaned_data['query_string'],
+            self.form.cleaned_data['order_by'] or OrderBy.fn.value[0]
+        )
+        return list(map(lambda client: client.get_client_data(),
+                        clients_data))
 
     def get_context_data(self, **kwargs):
         """
@@ -65,27 +64,18 @@ class ClientsList(ListView):
         :param kwargs: kwargs
         :return: context
         """
-        context = super(ClientsList, self).get_context_data(**kwargs)
-        context['query_string'] = self.query_string
+        context = super().get_context_data(**kwargs)
+        context['query_string'] = self.form.cleaned_data['query_string']
         return context
 
 
-class ClientCreate(FormView):
+class ClientCreate(FormView, CreateView):
     """
     Create a new client view
     """
     template_name = 'clientbase/client_create.html'
     form_class = ClientForm
     success_url = reverse_lazy('client_list')
-
-    def form_valid(self, form):
-        """
-        Validation and save form data
-        :param form: create client form
-        :return: form validation result
-        """
-        form.save()
-        return super(ClientCreate, self).form_valid(form)
 
 
 class ClientDelete(DeleteView):
@@ -102,25 +92,25 @@ class ClientPhotoList(ListView):
     """
     context_object_name = 'clients'
     template_name = 'clientbase/client_photo.html'
+    model = Client
 
     def get_queryset(self):
         """
         List of all client photo
         :return: list of client photo
         """
-        clients_data = Client.objects.all()
-        list_of_client = list(map(
+        queryset = super().get_queryset()
+        format_queryset = list(map(
             lambda client: client.get_client_photo_data(),
-            clients_data
+            queryset
         ))
-        return list_of_client
+        return format_queryset
 
 
 class LikeClientPhotoView(UpdateView):
     """
     The view witch set like client photo by id
     """
-
     def post(self, request, *args, **kwargs):
         """
         Get client by id and increment client likes counter if it possible
@@ -135,7 +125,7 @@ class LikeClientPhotoView(UpdateView):
                 if result:
                     return HttpResponse(status=200)
                 else:
-                    return HttpResponse('Maximum like counter', status=400)
+                    return HttpResponse('Maximum like counter', status=200)
         else:
             return HttpResponse(form.errors.as_json(), status=400)
 

@@ -3,43 +3,41 @@ from datetime import datetime
 from django.db import models
 from django.db.models import Q
 
+from .enums import OrderBy
 from .upload_photo import upload_photo
 from app import settings
 
 
 class ClientManager(models.Manager):
-    def get_clients_by_name(self, name, order_by='first_name'):
+    def get_clients_by_name(self, query_string, order_by):
         """
-        Search clients by name
-        :param name: the string by which clients are searched
+        Search clients by query_string
+        :param query_string: the string which contains first name
+            and last name of a client
         :param order_by: the string by which the sort order is set
-        :return: client list
+        :return: formatted client list
         """
         clients = None
-        if name:
-            for query in name.split():
-                clients = super().get_queryset().filter(Q(first_name__icontains=query) | Q(last_name__icontains=query))\
-                    .order_by(order_by)
+        order_by_value = OrderBy.get_value(order_by)
+        if query_string:
+            for query in query_string.split():
+                clients = super().get_queryset().filter(
+                    Q(first_name__icontains=query) |
+                    Q(last_name__icontains=query)
+                ).order_by(order_by_value)
         else:
-            clients = super().get_queryset().order_by(order_by)
+            clients = super().get_queryset().order_by(order_by_value)
         return clients
-
-    def get_clients_data(self):
-        """
-        Clients data formatting using get_client_data()
-        :return: clients list
-        """
-        clients = super().all()
-        data = list(map(lambda client: client.get_client_data(), clients))
-        return data
 
     def get_clients_photo_data(self):
         """
-        Clients photo and likes formatting using get_client_photo_data()
+        Formatting and return client photo list using get_client_photo_data()
         :return: clients list
         """
         clients = super().all().order_by('id')
-        data = list(map(lambda client: client.get_client_photo_data(), clients))
+        data = list(map(
+            lambda client: client.get_client_photo_data(), clients)
+        )
         return data
 
 
@@ -56,7 +54,8 @@ class Client(models.Model):
 
     def get_client_data(self):
         """
-        :return: formatted clients data for the list
+        Return client data with age and photo url
+        :return: client data
         """
         data = {
             'id': self.id,
@@ -70,7 +69,8 @@ class Client(models.Model):
 
     def get_client_photo_data(self):
         """
-        :return: formatted clients photo data for the list
+        Return client photo and like for it
+        :return: client data
         """
         data = {
             'id': self.id,
@@ -86,7 +86,9 @@ class Client(models.Model):
         """
         today = try_parsing_string_to_date(str(datetime.now().date()))
         born = try_parsing_string_to_date(str(self.date_of_birth))
-        age = today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+        age = today.year - born.year - (
+                (today.month, today.day) < (born.month, born.day)
+        )
         return age
 
 

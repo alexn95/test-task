@@ -22,16 +22,13 @@ function likePhoto(id) {
             success: function(e)
             {},
             statusCode: {
-                200: function() { 
-                    var value = parseInt(likes_input.val());
-                    likes_input.val(value + 1);
-                },
-                400: function(e) {
-                    console.log(e.responseText);
-                    if (e.responseText == 'Maximum like counter') {
+                200: function(e) {
+                    if (e == 'Maximum like counter') {
                         likes_error.show();
+                    } else {
+                        var value = parseInt(likes_input.val());
+                        likes_input.val(value + 1);
                     }
-
                 }
             },
         });

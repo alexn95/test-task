@@ -108,4 +108,3 @@ DATE_INPUT_FORMATS = (
 
 MAX_LIKES = 10
 CLIENTS_PER_PAGE = 5
-ORDER_BY_LIST = ['first_name', 'last_name', 'date_of_birth', '-date_of_birth']

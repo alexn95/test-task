@@ -14,10 +14,10 @@
         <table>
             <tr class="client-line">
                 <td class="client-photo_td"> Photo</td>
-                <td><a href="?{% url_replace request 'order_by' 'first_name' %}">First Name	&#9650;</a></td>
-                <td><a href="?{% url_replace request 'order_by' 'last_name' %}">Last Name &#9650;</a></td>
-                <td><a href="?{% url_replace request 'order_by' '-date_of_birth' %}">Age &#9650;</a></td>
-                <td><a href="?{% url_replace request 'order_by' 'date_of_birth' %}">Date of birth &#9650;</a></td>
+                <td><a href="?{% url_replace request 'order_by' 'fn' %}">First Name	&#9650;</a></td>
+                <td><a href="?{% url_replace request 'order_by' 'ln' %}">Last Name &#9650;</a></td>
+                <td><a href="?{% url_replace request 'order_by' 'dfb_d' %}">Age &#9650;</a></td>
+                <td><a href="?{% url_replace request 'order_by' 'dfb' %}">Date of birth &#9650;</a></td>
                 <td class="delete_td"></td>
             </tr>
             {% for client in clients %}

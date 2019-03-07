@@ -1,6 +1,5 @@
 .idea/
 __pycache__/
-migrations/
 media/photo/
 secret_key.py
 local.py
