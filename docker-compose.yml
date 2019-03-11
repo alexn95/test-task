@@ -5,10 +5,28 @@ services:
     image: postgres
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: "${COMMAND}"
     volumes:
       - .:/code
     ports:
       - "8000:8000"
     depends_on:
       - db
+  redis:
+    image: redis:alpine
+  celery:
+    build: .
+    command: celery -A celeryapp worker -l info
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - redis
+#  celery-beat:
+#    build: .
+#    command: celery -A celeryapp beat -l info
+#    volumes:
+#      - .:/code
+#    depends_on:
+#      - db
+#      - redis
