@@ -2,7 +2,7 @@
 Module contain tests of view functionality
 """
 
-from random import randint, randrange
+from random import randint
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase

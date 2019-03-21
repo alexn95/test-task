@@ -1,5 +1,5 @@
 import datetime
-from unittest import TestCase
+from django.test import TestCase
 
 from ..models import try_parsing_string_to_date
 from ..services import try_parsing_date

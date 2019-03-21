@@ -3,3 +3,4 @@ __pycache__/
 media/photo/
 secret_key.py
 local.py
+email-messages/

@@ -2,8 +2,7 @@
 Module contain tests of form functionality
 """
 
-
-from unittest import TestCase
+from django.test import TestCase
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 

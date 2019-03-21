@@ -47,6 +47,20 @@ class ClientManager(models.Manager):
         )
         return data
 
+    def get_like_data_in_string(self, clients_id):
+        """
+        Get clients by clients_id list.
+        Return id, first name and likes count of this clients in string format.
+        :param clients_id: list of clients id
+        :return: id, first name and likes count in sting format
+        """
+        result = ''
+        for client_id in clients_id:
+            client = super().get(id=client_id)
+            result += '{0}. {1} - {2} likes \n'.format(
+                client_id, client.first_name, client.likes)
+        return result
+
 
 class Client(models.Model):
     """

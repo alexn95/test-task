@@ -1,15 +1,19 @@
-from django.db import transaction
-from django.db.models import F
+"""
+Module contain celery tasks
+"""
 
-from app import settings
-from celeryapp.celery import app
+from __future__ import absolute_import, unicode_literals
+from celery import shared_task
+from django.core import mail
+
 from clientbase.models import Client
 
 
-@app.task
-def set_like(client_id):
-    with transaction.atomic():
-        result = Client.objects.select_for_update().filter(
-            id=client_id, likes__lt=settings.MAX_LIKES
-        ).update(likes=F('likes') + 1)
-    return result
+@shared_task
+def send_report(clients_id):
+    content = Client.objects.get_like_data_in_string(clients_id)
+    with mail.get_connection() as connection:
+        mail.EmailMessage(
+            'Clients like data', content, 'to@mail.ru', ['from@mail.ru'],
+            connection=connection,
+        ).send()

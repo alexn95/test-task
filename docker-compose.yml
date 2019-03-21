@@ -14,19 +14,3 @@ services:
       - db
   redis:
     image: redis:alpine
-  celery:
-    build: .
-    command: celery -A celeryapp worker -l info
-    volumes:
-      - .:/code
-    depends_on:
-      - db
-      - redis
-#  celery-beat:
-#    build: .
-#    command: celery -A celeryapp beat -l info
-#    volumes:
-#      - .:/code
-#    depends_on:
-#      - db
-#      - redis

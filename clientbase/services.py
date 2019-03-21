@@ -1,7 +1,7 @@
 """
 Module contain external services with used in app
 """
-
+from django.core import mail
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment
@@ -82,4 +82,3 @@ def try_parsing_date(date):
         except ValueError:
             pass
     raise ValueError('no valid date format found')
-

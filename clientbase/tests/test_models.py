@@ -4,7 +4,7 @@ Module contain tests of model functionality
 
 import datetime
 from random import randint
-from unittest import TestCase
+from django.test import TestCase
 
 from ..models import try_parsing_string_to_date, Client
 

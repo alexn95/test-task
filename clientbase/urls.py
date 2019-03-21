@@ -20,8 +20,4 @@ urlpatterns = [
     path('download', views.data_to_xlsx, name='data_to_xlsx'),
     path('photo', views.ClientPhotoList.as_view(), name='client_photo'),
     path('like', views.LikeClientPhotoView.as_view(), name='like_photo'),
-    path('like_async',
-         views.LikeClientPhotoAsyncView.as_view(),
-         name='like_photo_async'
-         ),
 ]

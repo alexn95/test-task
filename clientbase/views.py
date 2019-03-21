@@ -13,7 +13,6 @@ from django.views.generic import UpdateView, CreateView
 
 from openpyxl.writer.excel import save_virtual_workbook
 
-from .tasks import set_like
 from .enums import OrderBy
 from .forms import ClientPhotoForm, ClientListForm
 from .services import get_clients_in_xlsx
@@ -131,26 +130,6 @@ class LikeClientPhotoView(UpdateView):
                     return HttpResponse(status=200)
                 else:
                     return HttpResponse('Maximum like counter', status=200)
-        else:
-            return HttpResponse(form.errors.as_json(), status=400)
-
-
-class LikeClientPhotoAsyncView(UpdateView):
-    """
-    The view witch set "like" to client photo by id async
-    """
-    def post(self, request, *args, **kwargs):
-        """
-        Get client by id and increment client likes counter if it possible
-        """
-        form = ClientPhotoForm(request.POST)
-        if form.is_valid():
-            client_id = form.cleaned_data['client_id']
-            result = set_like(client_id)
-            if result:
-                return HttpResponse(status=200)
-            else:
-                return HttpResponse('Maximum like counter', status=200)
         else:
             return HttpResponse(form.errors.as_json(), status=400)
 
