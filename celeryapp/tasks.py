@@ -122,11 +122,14 @@ def log_error(request, exc, traceback):
     :param traceback: traceback
     """
     logs = '\n {0} \n\n ----- \n\n {1}'.format(request.task, traceback, )
+
+    # Parse id list from request.args
     if isinstance(request.args[0], (list,)):
         id_list = request.args[0]
     else:
         id_list = request.args
 
+    # Write logs
     for product_id in id_list:
         data_object = ProductData.objects.get(id=product_id)
         data_object.write_errors_logs(logs)
