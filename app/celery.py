@@ -13,4 +13,5 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
 
 app = Celery('app',  broker=settings.CELERY_BROKER_URL)
 app.config_from_object('django.conf:settings', namespace='CELERY')
+app.conf.task_routes = settings.CELERY_TASK_ROUTES
 app.autodiscover_tasks()

@@ -2,6 +2,11 @@
 import os
 import sys
 
+import ptvsd
+
+# address = ('0.0.0.0', 3500)
+# ptvsd.enable_attach('my_secret', address)
+
 if __name__ == '__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
     try:

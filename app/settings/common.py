@@ -32,7 +32,9 @@ INSTALLED_APPS = [
 ]
 
 INSTALLED_APPS += (
+    'django_cleanup.apps.CleanupConfig',
     'clientbase',
+    'celeryapp'
 )
 
 MIDDLEWARE = [
@@ -105,6 +107,24 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 
+CELERY_TASK_ROUTES = {
+    'celeryapp.tasks.log_error': {'queue': 'main_queue'},
+    'celeryapp.tasks.get_cheap_products_chain': {'queue': 'main_queue'},
+    'celeryapp.tasks.get_avg_prices_of_products_chain':
+        {'queue': 'main_queue'},
+    'celeryapp.tasks.get_analog_list_of_product_list_chain':
+        {'queue': 'main_queue'},
+
+    'celeryapp.tasks.collect_data_task': {'queue': 'collect_queue'},
+    'celeryapp.tasks.remove_repetitions_task': {'queue': 'collect_queue'},
+
+    'celeryapp.tasks.write_cheap_products_task': {'queue': 'processing_queue'},
+    'celeryapp.tasks.write_product_avr_prices_list_task':
+        {'queue': 'processing_queue'},
+    'celeryapp.tasks.write_analog_list_of_product_list_task':
+        {'queue': 'processing_queue'},
+}
+
 
 DATE_INPUT_FORMATS = (
     '%Y-%m-%d', '%d-%m-%Y',
@@ -115,3 +135,36 @@ DATE_INPUT_FORMATS = (
 
 MAX_LIKES = 10
 CLIENTS_PER_PAGE = 5
+
+PRODUCT_DATA_JSON_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "shop": {"type": "string"},
+            "product": {"type": "number"},
+            "price": {"type": "number"},
+            "series": {"type": "string"}
+        },
+        "required": ["shop", "product", "price", "series"]
+    }
+}
+
+TEST_DATA_FILE_DIR = 'tests'
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/2.1/howto/static-files/
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static/')
+]
+
+CLIENT_PHOTO_DIR = 'photo'
+PRODUCT_DATA_DIR = 'data'
+PRODUCT_LOGS_DIR = 'logs'
+
+LOG_DIR = os.path.join(BASE_DIR, 'logs/tasks/')

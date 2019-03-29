@@ -1,0 +1,32 @@
+[
+    {
+        "shop": "DNS",
+        "product": 1,
+        "price": 500,
+        "series": "C"
+    },
+    {
+        "shop": "DNS",
+        "product": 1,
+        "price": 100,
+        "series": "B"
+    },
+    {
+        "shop": "Technopoint",
+        "product": 3,
+        "price": 400,
+        "series": "B"
+    },
+    {
+        "shop": "Technopoint",
+        "product": 4,
+        "price": 100,
+        "series": "C"
+    },
+    {
+        "shop": "Technopoint",
+        "product": 5,
+        "price": 900,
+        "series": "C"
+    }
+]

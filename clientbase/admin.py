@@ -1,9 +1,8 @@
 """
-Module may contain django admin stuff
+Module contain django admin models
 """
 
 from django.contrib import admin
-from django.core import mail
 
 from .tasks import send_report
 from .models import Client

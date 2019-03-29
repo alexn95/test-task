@@ -1,6 +1,9 @@
 .idea/
 __pycache__/
 media/photo/
+media/data/*
+media/logs/*
+!media/data/tests/
 secret_key.py
 local.py
 email-messages/

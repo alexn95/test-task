@@ -1,0 +1,48 @@
+version: '3'
+
+
+services:
+  db:
+    container_name: db
+    image: postgres
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+
+  collect_worker:
+    container_name: collect_worker
+    build:
+      context: ..
+      dockerfile: ./config/Dockerfile
+    entrypoint: /code/config/collect_worker.sh
+    volumes:
+      - ..:/code
+    links:
+      - redis
+
+  processing_worker:
+    container_name: processing_worker
+    build:
+      context: ..
+      dockerfile: ./config/Dockerfile
+    entrypoint: /code/config/processing_worker.sh
+    volumes:
+      - ..:/code
+    links:
+      - redis
+
+  web:
+    container_name: web
+    build:
+      context: ..
+      dockerfile: ./config/Dockerfile
+    entrypoint: /code/config/web.sh
+    volumes:
+      - ..:/code
+    ports:
+      - "8000:8000"
+      - '3500:3500'
+      - '8006:81'
+    depends_on:
+      - db
